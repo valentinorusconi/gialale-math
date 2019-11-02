@@ -1,48 +1,155 @@
-import React, { Component } from 'react';
-import './App.css';
-import * as MyScriptJS from 'myscript'
-import 'myscript/dist/myscript.min.css';
-
-const editorStyle = {
-  'minWidth': '100px',
-  'minHeight': '100px',
-  'width': '100vw',
-  'height': 'calc(100vh - 190px)',
-  'touch-action': 'none',
-};
+import React, { Component } from "react";
+import "./App.css";
+import HandInput from "./HandInput";
+const axios = require("axios");
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      valueList: [{ row: 0, left: "", right: "", operation: "" }],
+      editorList: [null],
+      solution: 0
+    };
+  }
+
+  componentDidMount() {
+    axios
+      .post("http://gialale.herokuapp.com/calculate/solve", {
+        input: "(2+x)^2 = (x+1)(x-1)"
+      })
+      .then(response => {
+        this.setState({ solution: response.data.result });
+        console.log("Saved Result: " + response.data.result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  onDataChanged(data) {
+    this.setState(
+      {
+        valueList: [
+          ...this.state.valueList.filter(rowData => rowData.row !== data.row),
+          {
+            ...this.state.valueList.find(rowData => rowData.row === data.row),
+            ...data
+          }
+        ]
+      },
+      () => console.log(this.state.valueList)
+    );
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Welcome to Gialale Math</h1>
-          <button onClick={() => console.log(this.editor.convert()) }>Convert</button>
-          <button onClick={() => console.log(this.editor.exports) }>Exports</button>
-          <button onClick={() => console.log(this.editor.undo()) }>Undo</button>
-          <button onClick={() => console.log(this.editor.redo()) }>Redo</button>
-          <button onClick={() => console.log(this.editor.clear()) }>Clear</button>
-        </header>
-        <div style={editorStyle} ref="editor" touch-action="none"></div>
+      <div style={contentStyle}>
+        <h1 style={{ marginBottom: 20 }}>Solve for x</h1>
+        <img
+          src="https://math.now.sh?from=(2%2Bx)%5E2%20%3D%20(x%2B1)(x-1)"
+          width={700}
+          alt="Equation to be solved"
+          style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
+        />
+        {this.state.editorList.map((data, i) => {
+          return (
+            <div key={i} style={equationStyle}>
+              <HandInput
+                type={"left"}
+                row={i}
+                onDataChanged={data => this.onDataChanged(data)}
+              />
+              <div style={equalsStyle}> = </div>
+              <HandInput
+                type={"right"}
+                row={i}
+                onDataChanged={data => this.onDataChanged(data)}
+              />
+
+              <HandInput
+                style={operationStyle}
+                smallInput={true}
+                type={"operation"}
+                row={i}
+                onDataChanged={data => this.onDataChanged(data)}
+              />
+            </div>
+          );
+        })}
+        <div style={{ marginTop: 30, marginBottom: 600 }}>
+          <button
+            onClick={() =>
+              this.setState({
+                valueList: [
+                  ...this.state.valueList,
+                  {
+                    row: this.state.valueList.length,
+                    left: "",
+                    right: "",
+                    operation: ""
+                  }
+                ],
+                editorList: [...this.state.editorList, null]
+              })
+            }
+          >
+            Add equation step
+          </button>
+          <button
+            onClick={() => {
+              this.state.editorList.forEach(row => {
+                console.log(row);
+                axios
+                  .post("http://gialale.herokuapp.com/calculate/compare", {
+                    lhs: row.left,
+                    rhs: row.right,
+                    x: this.state.solution
+                  })
+                  .then(response => {
+                    console.log(response);
+                  })
+                  .catch(error => {
+                    console.log(error);
+                  });
+              });
+            }}
+            style={{ marginLeft: 30 }}
+          >
+            Check
+          </button>
+        </div>
       </div>
     );
   }
-  componentDidMount() {
-    this.editor = MyScriptJS.register(this.refs.editor, {
-      recognitionParams: {
-        type: 'MATH',
-        protocol: 'WEBSOCKET',
-        apiVersion: 'V4',
-        server: {
-          scheme: 'https',
-          host: 'webdemoapi.myscript.com',
-          applicationKey: '1463c06b-251c-47b8-ad0b-ba05b9a3bd01',
-          hmacKey: '60ca101a-5e6d-4159-abc5-2efcbecce059',
-        },
-      },
-    });
-    window.addEventListener("resize", () => {this.editor.resize()});
-  }
 }
+
+const contentStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  background:
+    "no-repeat url(//s.ytimg.com/yt/imgbin/www-refreshbg-vflC3wnbM.png) 0 0",
+
+  backgroundRepeat: "repeat",
+  backgroundSize: "40px 40px",
+  backgroundImage:
+    "linear-gradient(to right, grey 1px, transparent 1px), linear-gradient(to bottom, grey 1px, transparent 1px)"
+};
+
+const equalsStyle = {
+  margin: 30
+};
+
+const operationStyle = {
+  marginLeft: 80
+};
+
+const equationStyle = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center"
+};
 
 export default App;
