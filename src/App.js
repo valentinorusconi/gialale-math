@@ -8,7 +8,8 @@ class App extends Component {
     super(props);
     this.state = {
       valueList: [{ row: 0, left: "", right: "", operation: "" }],
-      solution: 0
+      solution: 0,
+      level: 1
     };
   }
 
@@ -37,16 +38,24 @@ class App extends Component {
     });
   }
 
+  onLevelChanged(selection) {
+    this.setState({ level: this.state.level + selection });
+    this.setState({ valueList: [{ row: 0, left: "", right: "", operation: "" }],})
+  }
+
   render() {
     return (
       <div style={contentStyle}>
-        <h1 style={{ marginBottom: 20 }}>Solve for x</h1>
+        <h1 style={{ marginBottom: 0 }}>Solve for x</h1>
+        <h4 style={{ marginBottom: 40, marginTop: 0 }}>Level { this.state.level }</h4>
+        <button onClick={() => this.onLevelChanged(-1) }>Previous Level</button><br/>
         <img
           src="https://math.now.sh?from=(2%2Bx)%5E2%20%3D%20(x%2B1)(x-1)"
           width={700}
           alt="Equation to be solved"
           style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
         />
+        <button onClick={() => this.onLevelChanged(1) }>Next Level</button>
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
           return (
