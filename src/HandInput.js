@@ -39,10 +39,10 @@ class HandInput extends Component {
   render() {
     return (
       <div style={{ marginLeft: this.props.smallInput ? 80 : 0 }}>
-        <div style={flexBoxLineCentered}>
-          <button onClick={() => this.editor.undo()}>Undo</button>
-          <button onClick={() => this.editor.redo()}>Redo</button>
-          <button onClick={() => this.editor.clear()}>Clear</button>
+        <div class="row flex-spaces child-borders">
+          <button onClick={() => this.editor.undo()}><i class="fa fa-undo"></i></button>
+          <button onClick={() => this.editor.redo()}><i class="fa fa-redo"></i></button>
+          <button onClick={() => this.editor.clear()}><i class="fa fa-trash"></i></button>
         </div>
 
         <div
@@ -50,6 +50,7 @@ class HandInput extends Component {
             ...editorStyle,
             width: this.props.smallInput ? "10vw" : "33vw"
           }}
+          className="border border-3 border-primary"
           ref="editor"
           touch-action="none"
         ></div>
@@ -73,7 +74,8 @@ const editorStyle = {
   touchAction: "none",
   borderBottom: 2,
   borderStyle: "solid",
-  borderColor: "black"
+  borderColor: "black",
+  backgroundColor: "white"
   //   background:
   //     "no-repeat url(//s.ytimg.com/yt/imgbin/www-refreshbg-vflC3wnbM.png) 0 0",
   //   backgroundColor: "lightgrey"

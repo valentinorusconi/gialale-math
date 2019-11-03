@@ -66,7 +66,7 @@ class App extends Component {
                 row={i}
                 onDataChanged={data => this.onDataChanged(data)}
               />
-
+            <div style={operationSeparatorStyle}> | </div>
               <HandInput
                 style={operationStyle}
                 smallInput={true}
@@ -134,22 +134,34 @@ const contentStyle = {
   backgroundRepeat: "repeat",
   backgroundSize: "40px 40px",
   backgroundImage:
-    "linear-gradient(to right, grey 1px, transparent 1px), linear-gradient(to bottom, grey 1px, transparent 1px)"
+    "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)"
 };
 
 const equalsStyle = {
-  margin: 30
+  fontSize: '60pt',
+  fontWeight: 'bold',
+  margin: 30,
+  marginTop: '70px'
 };
 
 const operationStyle = {
   marginLeft: 80
 };
 
+const operationSeparatorStyle = {
+  height: '100%',
+  fontSize: '100pt',
+  marginLeft: '60px',
+  marginRight: '0px',
+  marginTop: '70px'
+};
+
 const equationStyle = {
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  justifyContent: "center"
+  justifyContent: "center",
+  marginBottom: '70px'
 };
 
 export default App;
