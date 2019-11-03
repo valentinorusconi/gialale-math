@@ -182,6 +182,9 @@ class App extends Component {
           >
             { this.state.loading ? <i className="fa fa-spinner fa-spin" /> : <React.Fragment><i className="fa fa-calculator"/> Check</React.Fragment> }
           </button>
+          <button onClick={() => alert("x = " + this.state.solution)} style={{ marginLeft: 30 }}>
+            <i className="fa fa-equals" /> Show solution
+          </button>
         </div>
       </div>
     );
