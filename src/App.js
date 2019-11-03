@@ -45,7 +45,7 @@ class App extends Component {
     });
 
     axios
-      .post("http://gialale.herokuapp.com/calculate/solve", {
+      .post("https://gialale.herokuapp.com/calculate/solve", {
         input: newExercise
       })
       .then(response => {
@@ -64,17 +64,29 @@ class App extends Component {
         <h4 style={{ marginBottom: 40, marginTop: 0 }}>
           Level {this.state.level}
         </h4>
-        <button onClick={() => this.onLevelChanged(-1)}>Previous Level</button>
-        <br />
-        <img
-          src={`https://math.now.sh?from=${encodeURIComponent(
-            this.state.exercise
-          )}`}
-          width={700}
-          alt="Equation to be solved"
-          style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
-        />
-        <button onClick={() => this.onLevelChanged(1)}>Next Level</button>
+        <div style={exerciseStyle}>
+          <button
+            onClick={() => this.onLevelChanged(-1)}
+            style={{ marginRight: 30 }}
+          >
+            Previous Level
+          </button>
+          <br />
+          <img
+            src={`https://math.now.sh?from=${encodeURIComponent(
+              this.state.exercise
+            )}`}
+            width={700}
+            alt="Equation to be solved"
+            style={{
+              marginBottom: 30,
+              padding: 10,
+              backgroundColor: "white",
+              marginRight: 30
+            }}
+          />
+          <button onClick={() => this.onLevelChanged(1)}>Next Level</button>
+        </div>
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
           return (
@@ -127,7 +139,7 @@ class App extends Component {
               this.state.valueList.forEach(row => {
                 if (row && row.left && row.right) {
                   axios
-                    .post("http://gialale.herokuapp.com/calculate/compare", {
+                    .post("https://gialale.herokuapp.com/calculate/compare", {
                       lhs: row.left,
                       rhs: row.right,
                       x: this.state.solution
@@ -171,6 +183,11 @@ const contentStyle = {
   backgroundSize: "40px 40px",
   backgroundImage:
     "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)"
+};
+
+const exerciseStyle = {
+  display: "flex",
+  flexDirection: "row"
 };
 
 const equalsStyle = {
