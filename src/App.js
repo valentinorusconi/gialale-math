@@ -10,21 +10,13 @@ class App extends Component {
     this.state = {
       valueList: [{ row: 0, left: "", right: "", operation: "" }],
       solution: 0,
+      level: 1,
       exercise: getExcercise(1)
     };
   }
 
   componentDidMount() {
-    axios
-      .post("http://gialale.herokuapp.com/calculate/solve", {
-        input: this.state.exercise
-      })
-      .then(response => {
-        this.setState({ solution: response.data.result });
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    this.onLevelChanged(0);
   }
 
   onDataChanged(data) {
@@ -39,10 +31,41 @@ class App extends Component {
     });
   }
 
+  onLevelChanged(selection) {
+    if (this.state.level + selection < 1) {
+      return;
+    }
+
+    const newLevel = this.state.level + selection;
+    const newExercise = getExcercise(newLevel);
+    this.setState({
+      level: newLevel,
+      exercise: newExercise,
+      valueList: [{ row: 0, left: "", right: "", operation: "" }]
+    });
+
+    axios
+      .post("http://gialale.herokuapp.com/calculate/solve", {
+        input: newExercise
+      })
+      .then(response => {
+        this.setState({ solution: response.data.result });
+        console.log(response.data.result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
   render() {
     return (
       <div style={contentStyle}>
-        <h1 style={{ marginBottom: 20 }}>Solve for x</h1>
+        <h1 style={{ marginBottom: 0 }}>Solve for x</h1>
+        <h4 style={{ marginBottom: 40, marginTop: 0 }}>
+          Level {this.state.level}
+        </h4>
+        <button onClick={() => this.onLevelChanged(-1)}>Previous Level</button>
+        <br />
         <img
           src={`https://math.now.sh?from=${encodeURIComponent(
             this.state.exercise
@@ -51,6 +74,7 @@ class App extends Component {
           alt="Equation to be solved"
           style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
         />
+        <button onClick={() => this.onLevelChanged(1)}>Next Level</button>
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
           return (
