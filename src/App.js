@@ -81,11 +81,15 @@ class App extends Component {
             style={{
               marginBottom: 30,
               padding: 10,
-              backgroundColor: "white",
-              marginRight: 30
+              backgroundColor: "white"
             }}
           />
-          <button onClick={() => this.onLevelChanged(1)}>Next Level</button>
+          <button
+            onClick={() => this.onLevelChanged(1)}
+            style={{ marginLeft: 30 }}
+          >
+            Next Level
+          </button>
         </div>
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
