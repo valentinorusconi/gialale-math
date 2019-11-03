@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
 import HandInput from "./HandInput";
+import getExcercise from "./generator";
 const axios = require("axios");
 
 class App extends Component {
@@ -8,14 +9,15 @@ class App extends Component {
     super(props);
     this.state = {
       valueList: [{ row: 0, left: "", right: "", operation: "" }],
-      solution: 0
+      solution: 0,
+      exercise: getExcercise(1)
     };
   }
 
   componentDidMount() {
     axios
       .post("http://gialale.herokuapp.com/calculate/solve", {
-        input: "(2+x)^2 = (x+1)(x-1)"
+        input: this.state.exercise
       })
       .then(response => {
         this.setState({ solution: response.data.result });
@@ -42,7 +44,9 @@ class App extends Component {
       <div style={contentStyle}>
         <h1 style={{ marginBottom: 20 }}>Solve for x</h1>
         <img
-          src="https://math.now.sh?from=(2%2Bx)%5E2%20%3D%20(x%2B1)(x-1)"
+          src={`https://math.now.sh?from=${encodeURIComponent(
+            this.state.exercise
+          )}`}
           width={700}
           alt="Equation to be solved"
           style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
@@ -50,7 +54,7 @@ class App extends Component {
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
           return (
-            <div key={i} style={equationStyle}>
+            <div key={"equation" + i} style={equationStyle}>
               <HandInput
                 type={"left"}
                 row={i}
@@ -78,7 +82,7 @@ class App extends Component {
         })}
         <div style={{ marginTop: 30, marginBottom: 600 }}>
           <button
-            onClick={() =>
+            onClick={() => {
               this.setState({
                 valueList: [
                   ...this.state.valueList,
@@ -88,19 +92,16 @@ class App extends Component {
                     right: "",
                     operation: ""
                   }
-                ],
-                valueList: [...this.state.valueList, false].sort(
-                  (a, b) => a.row > b.row
-                )
-              })
-            }
+                ].sort((a, b) => a.row > b.row)
+              });
+            }}
           >
             Add equation step
           </button>
           <button
             onClick={() => {
               this.state.valueList.forEach(row => {
-                if (row) {
+                if (row && row.left && row.right) {
                   axios
                     .post("http://gialale.herokuapp.com/calculate/compare", {
                       lhs: row.left,
