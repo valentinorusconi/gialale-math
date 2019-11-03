@@ -8,7 +8,6 @@ class App extends Component {
     super(props);
     this.state = {
       valueList: [{ row: 0, left: "", right: "", operation: "" }],
-      editorList: [null],
       solution: 0
     };
   }
@@ -20,7 +19,6 @@ class App extends Component {
       })
       .then(response => {
         this.setState({ solution: response.data.result });
-        console.log("Saved Result: " + response.data.result);
       })
       .catch(error => {
         console.log(error);
@@ -28,18 +26,15 @@ class App extends Component {
   }
 
   onDataChanged(data) {
-    this.setState(
-      {
-        valueList: [
-          ...this.state.valueList.filter(rowData => rowData.row !== data.row),
-          {
-            ...this.state.valueList.find(rowData => rowData.row === data.row),
-            ...data
-          }
-        ]
-      },
-      () => console.log(this.state.valueList)
-    );
+    this.setState({
+      valueList: [
+        ...this.state.valueList.filter(rowData => rowData.row !== data.row),
+        {
+          ...this.state.valueList.find(rowData => rowData.row === data.row),
+          ...data
+        }
+      ]
+    });
   }
 
   render() {
@@ -52,26 +47,30 @@ class App extends Component {
           alt="Equation to be solved"
           style={{ marginBottom: 30, padding: 10, backgroundColor: "white" }}
         />
-        {this.state.editorList.map((data, i) => {
+        {this.state.valueList.map((value, i) => {
+          const { correct } = value;
           return (
             <div key={i} style={equationStyle}>
               <HandInput
                 type={"left"}
                 row={i}
+                correct={correct}
                 onDataChanged={data => this.onDataChanged(data)}
               />
               <div style={equalsStyle}> = </div>
               <HandInput
                 type={"right"}
                 row={i}
+                correct={correct}
                 onDataChanged={data => this.onDataChanged(data)}
               />
-            <div style={operationSeparatorStyle}> | </div>
+              <div style={operationSeparatorStyle}> | </div>
               <HandInput
                 style={operationStyle}
                 smallInput={true}
                 type={"operation"}
                 row={i}
+                correct={correct}
                 onDataChanged={data => this.onDataChanged(data)}
               />
             </div>
@@ -90,7 +89,9 @@ class App extends Component {
                     operation: ""
                   }
                 ],
-                editorList: [...this.state.editorList, null]
+                valueList: [...this.state.valueList, false].sort(
+                  (a, b) => a.row > b.row
+                )
               })
             }
           >
@@ -98,20 +99,30 @@ class App extends Component {
           </button>
           <button
             onClick={() => {
-              this.state.editorList.forEach(row => {
-                console.log(row);
-                axios
-                  .post("http://gialale.herokuapp.com/calculate/compare", {
-                    lhs: row.left,
-                    rhs: row.right,
-                    x: this.state.solution
-                  })
-                  .then(response => {
-                    console.log(response);
-                  })
-                  .catch(error => {
-                    console.log(error);
-                  });
+              this.state.valueList.forEach(row => {
+                if (row) {
+                  axios
+                    .post("http://gialale.herokuapp.com/calculate/compare", {
+                      lhs: row.left,
+                      rhs: row.right,
+                      x: this.state.solution
+                    })
+                    .then(response => {
+                      const checkedValueList = this.state.valueList;
+                      const checkedRow = checkedValueList.find(
+                        value => value.row === row.row
+                      );
+                      if (response.data.result === "False") {
+                        checkedRow.correct = false;
+                      } else {
+                        checkedRow.correct = true;
+                      }
+                      this.setState({ valueList: checkedValueList });
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
+                }
               });
             }}
             style={{ marginLeft: 30 }}
@@ -138,10 +149,10 @@ const contentStyle = {
 };
 
 const equalsStyle = {
-  fontSize: '60pt',
-  fontWeight: 'bold',
+  fontSize: "60pt",
+  fontWeight: "bold",
   margin: 30,
-  marginTop: '70px'
+  marginTop: "70px"
 };
 
 const operationStyle = {
@@ -149,11 +160,11 @@ const operationStyle = {
 };
 
 const operationSeparatorStyle = {
-  height: '100%',
-  fontSize: '100pt',
-  marginLeft: '60px',
-  marginRight: '0px',
-  marginTop: '70px'
+  height: "100%",
+  fontSize: "100pt",
+  marginLeft: "60px",
+  marginRight: "0px",
+  marginTop: "70px"
 };
 
 const equationStyle = {
@@ -161,7 +172,7 @@ const equationStyle = {
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
-  marginBottom: '70px'
+  marginBottom: "70px"
 };
 
 export default App;

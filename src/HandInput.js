@@ -37,18 +37,32 @@ class HandInput extends Component {
   }
 
   render() {
+    let borderColor = "black";
+    if (this.props.correct === true) {
+      borderColor = "green";
+    } else if (this.props.correct === false) {
+      borderColor = "red";
+    }
+
     return (
       <div style={{ marginLeft: this.props.smallInput ? 80 : 0 }}>
-        <div class="row flex-spaces child-borders">
-          <button onClick={() => this.editor.undo()}><i class="fa fa-undo"></i></button>
-          <button onClick={() => this.editor.redo()}><i class="fa fa-redo"></i></button>
-          <button onClick={() => this.editor.clear()}><i class="fa fa-trash"></i></button>
+        <div className="row flex-spaces child-borders">
+          <button onClick={() => this.editor.undo()}>
+            <i className="fa fa-undo"></i>
+          </button>
+          <button onClick={() => this.editor.redo()}>
+            <i className="fa fa-redo"></i>
+          </button>
+          <button onClick={() => this.editor.clear()}>
+            <i className="fa fa-trash"></i>
+          </button>
         </div>
 
         <div
           style={{
             ...editorStyle,
-            width: this.props.smallInput ? "10vw" : "33vw"
+            width: this.props.smallInput ? "10vw" : "33vw",
+            borderColor
           }}
           className="border border-3 border-primary"
           ref="editor"
@@ -59,14 +73,6 @@ class HandInput extends Component {
   }
 }
 
-const flexBoxLineCentered = {
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  marginBottom: 10,
-  marginTop: 20
-};
-
 const editorStyle = {
   minWidth: "100px",
   minHeight: "100px",
@@ -74,7 +80,7 @@ const editorStyle = {
   touchAction: "none",
   borderBottom: 2,
   borderStyle: "solid",
-  borderColor: "black",
+  //   borderColor: "black",
   backgroundColor: "white"
   //   background:
   //     "no-repeat url(//s.ytimg.com/yt/imgbin/www-refreshbg-vflC3wnbM.png) 0 0",
