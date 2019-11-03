@@ -32,7 +32,7 @@ class App extends Component {
   }
 
   onLevelChanged(selection) {
-    if (this.state.level + selection < 1) {
+    if (this.state.level + selection < 1 || this.state.level + selection > 3) {
       return;
     }
 
@@ -41,8 +41,14 @@ class App extends Component {
     this.setState({
       level: newLevel,
       exercise: newExercise,
-      valueList: [{ row: 0, left: "", right: "", operation: "" }]
+      loading: false,
+      valueList: []
+    }, () => {
+      this.setState({
+        valueList: [{ row: 0, left: "", right: "", operation: "" }]
+      })
     });
+
 
     axios
       .post("https://gialale.herokuapp.com/calculate/solve", {
@@ -60,17 +66,25 @@ class App extends Component {
   render() {
     return (
       <div style={contentStyle}>
-        <h1 style={{ marginBottom: 0 }}>Solve for x</h1>
-        <h4 style={{ marginBottom: 40, marginTop: 0 }}>
-          Level {this.state.level}
-        </h4>
-        <div style={exerciseStyle}>
+        <h1 style={{ marginBottom: 20 }}>Solve for x</h1>
+        <h4 style={{ marginBottom: 10, marginTop: 0 }}>
           <button
             onClick={() => this.onLevelChanged(-1)}
             style={{ marginRight: 30 }}
           >
-            Previous Level
+            <i className="far fa-hand-point-left" />
           </button>
+
+          Level {this.state.level}
+
+          <button
+            onClick={() => this.onLevelChanged(1)}
+            style={{ marginLeft: 30 }}
+          >
+            <i className="far fa-hand-point-right" />
+          </button>
+        </h4>
+        <div>
           <br />
           <img
             src={`https://math.now.sh?from=${encodeURIComponent(
@@ -80,16 +94,11 @@ class App extends Component {
             alt="Equation to be solved"
             style={{
               marginBottom: 30,
-              padding: 10,
+              padding: 30,
               backgroundColor: "white"
             }}
           />
-          <button
-            onClick={() => this.onLevelChanged(1)}
-            style={{ marginLeft: 30 }}
-          >
-            Next Level
-          </button>
+
         </div>
         {this.state.valueList.map((value, i) => {
           const { correct } = value;
@@ -136,13 +145,14 @@ class App extends Component {
               });
             }}
           >
-            Add equation step
+            <i className="fa fa-plus-circle" /> Add equation step
           </button>
           <button
             onClick={() => {
-              this.state.valueList.forEach(row => {
+              this.setState({ loading: true });
+              Promise.all(this.state.valueList.map(row => {
                 if (row && row.left && row.right) {
-                  axios
+                  return axios
                     .post("https://gialale.herokuapp.com/calculate/compare", {
                       lhs: row.left,
                       rhs: row.right,
@@ -164,11 +174,13 @@ class App extends Component {
                       console.log(error);
                     });
                 }
+              })).then(() => {
+                this.setState({ loading: false });
               });
             }}
             style={{ marginLeft: 30 }}
           >
-            Check
+            { this.state.loading ? <i className="fa fa-spinner fa-spin" /> : <React.Fragment><i className="fa fa-calculator"/> Check</React.Fragment> }
           </button>
         </div>
       </div>
@@ -195,10 +207,11 @@ const exerciseStyle = {
 };
 
 const equalsStyle = {
-  fontSize: "60pt",
+  fontSize: "100pt",
   fontWeight: "bold",
   margin: 30,
-  marginTop: "70px"
+  marginTop: "70px",
+  fontFamily: '"Patrick Hand SC",sans-serif'
 };
 
 const operationStyle = {
@@ -210,7 +223,8 @@ const operationSeparatorStyle = {
   fontSize: "100pt",
   marginLeft: "60px",
   marginRight: "0px",
-  marginTop: "70px"
+  marginTop: "70px",
+  fontFamily: '"Patrick Hand SC",sans-serif'
 };
 
 const equationStyle = {

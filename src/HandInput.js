@@ -27,7 +27,6 @@ class HandInput extends Component {
         event.srcElement.editor.model.exports
       ) {
         this.props.onDataChanged({
-          //   type: this.props.type,
           row: this.props.row,
           [this.props.type]:
             event.srcElement.editor.model.exports["application/x-latex"]
@@ -37,11 +36,11 @@ class HandInput extends Component {
   }
 
   render() {
-    let borderColor = "black";
+    let color = "white";
     if (this.props.correct === true) {
-      borderColor = "green";
+      color = "#00e699";
     } else if (this.props.correct === false) {
-      borderColor = "red";
+      color = "#FFA07A";
     }
 
     return (
@@ -61,8 +60,9 @@ class HandInput extends Component {
         <div
           style={{
             ...editorStyle,
+            background: color,
             width: this.props.smallInput ? "10vw" : "33vw",
-            borderColor
+            borderColor: 'black'
           }}
           className="border border-3 border-primary"
           ref="editor"
